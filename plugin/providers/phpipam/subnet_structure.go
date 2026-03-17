@@ -347,6 +347,52 @@ func subnetDescriptionMatchSchema(conflicts []string) *schema.Schema {
 // do with the results (ie: reject it on matching nothing or more than one for
 // the singular data source, or extracting the IDs for the plural one).
 func subnetSearchInSection(d *schema.ResourceData, meta interface{}) ([]subnets.Subnet, error) {
+	s := meta.(*ProviderPHPIPAMClient).sectionsController
+	result := make([]subnets.Subnet, 0)
+
+	sectionID := d.Get("section_id").(int)
+	descMatch := d.Get("description_match").(string)
+	desc := d.Get("description").(string)
+	customFilter := d.Get("custom_field_filter").(map[string]interface{})
+
+	// Use server-side filtering for description and description_match when
+	// no custom_field_filter is set. This pushes filtering to SQL, avoiding
+	// fetching and iterating all subnets in the section client-side.
+	switch {
+	case descMatch != "" && len(customFilter) == 0:
+		// Regex match: use filter_match=regex with PCRE-delimited pattern
+		v, err := s.GetSubnetsInSectionFiltered(sectionID, "description", "/"+descMatch+"/", "regex")
+		if err != nil {
+			// Fall back to client-side filtering if the API doesn't support it
+			return subnetSearchInSectionClientFilter(d, meta)
+		}
+		if len(v) == 0 {
+			return result, errors.New("No subnets were found in the supplied section")
+		}
+		return v, nil
+
+	case desc != "" && len(customFilter) == 0:
+		// Exact match: use filter_match=full
+		v, err := s.GetSubnetsInSectionFiltered(sectionID, "description", desc, "full")
+		if err != nil {
+			return subnetSearchInSectionClientFilter(d, meta)
+		}
+		if len(v) == 0 {
+			return result, errors.New("No subnets were found in the supplied section")
+		}
+		return v, nil
+
+	default:
+		// Custom field filter or other cases: fall back to client-side filtering
+		return subnetSearchInSectionClientFilter(d, meta)
+	}
+}
+
+// subnetSearchInSectionClientFilter is the fallback that fetches all subnets
+// in a section and filters client-side. Used for custom_field_filter (which
+// requires per-resource API calls) and as a fallback if server-side filtering
+// is not available.
+func subnetSearchInSectionClientFilter(d *schema.ResourceData, meta interface{}) ([]subnets.Subnet, error) {
 	c := meta.(*ProviderPHPIPAMClient).subnetsController
 	s := meta.(*ProviderPHPIPAMClient).sectionsController
 	result := make([]subnets.Subnet, 0)
@@ -360,17 +406,13 @@ func subnetSearchInSection(d *schema.ResourceData, meta interface{}) ([]subnets.
 	}
 	for _, r := range v {
 		switch {
-		// Double-assert that we don't have empty strings in the conditionals
-		// to ensure there there is no edge cases with matching zero values.
 		case d.Get("description_match").(string) != "":
-			// Don't trap error here because we should have already validated the regex via the ValidateFunc.
 			if matched, _ := regexp.MatchString(d.Get("description_match").(string), r.Description); matched {
 				result = append(result, r)
 			}
 		case d.Get("description").(string) != "" && r.Description == d.Get("description").(string):
 			result = append(result, r)
 		case len(d.Get("custom_field_filter").(map[string]interface{})) > 0:
-			// Skip folders for now as there is issues pulling them down in the API.
 			if r.IsFolder {
 				continue
 			}

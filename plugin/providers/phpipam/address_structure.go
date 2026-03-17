@@ -225,6 +225,46 @@ func flattenAddress(a addresses.Address, d *schema.ResourceData) {
 // than one for the singular data source, or extracting the IDs for the plural
 // one).
 func addressSearchInSubnet(d *schema.ResourceData, meta interface{}) ([]addresses.Address, error) {
+	s := meta.(*ProviderPHPIPAMClient).subnetsController
+	result := make([]addresses.Address, 0)
+
+	subnetID := d.Get("subnet_id").(int)
+	desc := d.Get("description").(string)
+	hostname := d.Get("hostname").(string)
+	customFilter := d.Get("custom_field_filter").(map[string]interface{})
+
+	// Use server-side filtering for description and hostname when no
+	// custom_field_filter is set. This pushes filtering to SQL.
+	switch {
+	case desc != "" && len(customFilter) == 0:
+		v, err := s.GetAddressesInSubnetFiltered(subnetID, "description", desc, "full")
+		if err != nil {
+			return addressSearchInSubnetClientFilter(d, meta)
+		}
+		if len(v) == 0 {
+			return result, errors.New("No addresses were found in the supplied subnet")
+		}
+		return v, nil
+
+	case hostname != "" && len(customFilter) == 0:
+		v, err := s.GetAddressesInSubnetFiltered(subnetID, "hostname", hostname, "full")
+		if err != nil {
+			return addressSearchInSubnetClientFilter(d, meta)
+		}
+		if len(v) == 0 {
+			return result, errors.New("No addresses were found in the supplied subnet")
+		}
+		return v, nil
+
+	default:
+		return addressSearchInSubnetClientFilter(d, meta)
+	}
+}
+
+// addressSearchInSubnetClientFilter is the fallback that fetches all addresses
+// in a subnet and filters client-side. Used for custom_field_filter and as a
+// fallback if server-side filtering is not available.
+func addressSearchInSubnetClientFilter(d *schema.ResourceData, meta interface{}) ([]addresses.Address, error) {
 	c := meta.(*ProviderPHPIPAMClient).addressesController
 	s := meta.(*ProviderPHPIPAMClient).subnetsController
 	result := make([]addresses.Address, 0)
@@ -237,8 +277,6 @@ func addressSearchInSubnet(d *schema.ResourceData, meta interface{}) ([]addresse
 	}
 	for _, r := range v {
 		switch {
-		// Double-assert that we don't have empty strings in the conditionals
-		// to ensure there there is no edge cases with matching zero values.
 		case d.Get("description").(string) != "" && r.Description == d.Get("description").(string):
 			result = append(result, r)
 		case d.Get("hostname").(string) != "" && r.Hostname == d.Get("hostname").(string):

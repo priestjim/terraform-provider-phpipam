@@ -4,6 +4,7 @@ package sections
 
 import (
 	"fmt"
+	"net/url"
 
 	"github.com/pavel-z1/phpipam-sdk-go/controllers/subnets"
 	"github.com/pavel-z1/phpipam-sdk-go/phpipam"
@@ -96,6 +97,18 @@ func (c *Controller) GetSectionByName(name string) (out Section, err error) {
 // GetSubnetsInSection GETs the subnets in a section by section ID.
 func (c *Controller) GetSubnetsInSection(id int) (out []subnets.Subnet, err error) {
 	err = c.SendRequest("GET", fmt.Sprintf("/sections/%d/subnets/", id), &struct{}{}, &out)
+	return
+}
+
+// GetSubnetsInSectionFiltered GETs subnets in a section with server-side
+// filtering via filter_by, filter_value, and filter_match query parameters.
+// filterMatch should be one of "full", "partial", or "regex".
+func (c *Controller) GetSubnetsInSectionFiltered(id int, filterBy, filterValue, filterMatch string) (out []subnets.Subnet, err error) {
+	params := url.Values{}
+	params.Set("filter_by", filterBy)
+	params.Set("filter_value", filterValue)
+	params.Set("filter_match", filterMatch)
+	err = c.SendRequest("GET", fmt.Sprintf("/sections/%d/subnets/?%s", id, params.Encode()), &struct{}{}, &out)
 	return
 }
 

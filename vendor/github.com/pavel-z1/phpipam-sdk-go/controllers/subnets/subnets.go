@@ -4,6 +4,7 @@ package subnets
 
 import (
 	"fmt"
+	"net/url"
 
 	"github.com/pavel-z1/phpipam-sdk-go/controllers/addresses"
 	"github.com/pavel-z1/phpipam-sdk-go/phpipam"
@@ -177,6 +178,18 @@ func (c *Controller) GetFirstFreeAddress(id int) (out string, err error) {
 // supplied subnet ID.
 func (c *Controller) GetAddressesInSubnet(id int) (out []addresses.Address, err error) {
 	err = c.SendRequest("GET", fmt.Sprintf("/subnets/%d/addresses/", id), &struct{}{}, &out)
+	return
+}
+
+// GetAddressesInSubnetFiltered GETs IP addresses for a specific subnet with
+// server-side filtering via filter_by, filter_value, and filter_match query
+// parameters. filterMatch should be one of "full", "partial", or "regex".
+func (c *Controller) GetAddressesInSubnetFiltered(id int, filterBy, filterValue, filterMatch string) (out []addresses.Address, err error) {
+	params := url.Values{}
+	params.Set("filter_by", filterBy)
+	params.Set("filter_value", filterValue)
+	params.Set("filter_match", filterMatch)
+	err = c.SendRequest("GET", fmt.Sprintf("/subnets/%d/addresses/?%s", id, params.Encode()), &struct{}{}, &out)
 	return
 }
 
