@@ -1,3 +1,6 @@
+CLAUDE.md
+AGENTS.md
+publish.rb
 .terraform*
 terraform.d
 *.tfstate*
