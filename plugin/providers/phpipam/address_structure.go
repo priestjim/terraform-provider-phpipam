@@ -261,33 +261,84 @@ func addressSearchInSubnet(d *schema.ResourceData, meta interface{}) ([]addresse
 	}
 }
 
-// addressSearchInSubnetClientFilter is the fallback that fetches all addresses
-// in a subnet and filters client-side. Used for custom_field_filter and as a
-// fallback if server-side filtering is not available.
+// addressSearchInSubnetClientFilter is the fallback for custom_field_filter
+// and as a fallback if server-side filtering is not available.
+//
+// Uses the same tiered optimization as subnetSearchInSectionClientFilter:
+// API-level filter on first custom field, then client-side for the rest,
+// using CustomFields from the response when available.
 func addressSearchInSubnetClientFilter(d *schema.ResourceData, meta interface{}) ([]addresses.Address, error) {
 	c := meta.(*ProviderPHPIPAMClient).addressesController
 	s := meta.(*ProviderPHPIPAMClient).subnetsController
 	result := make([]addresses.Address, 0)
-	v, err := s.GetAddressesInSubnet(d.Get("subnet_id").(int))
-	if err != nil {
-		return result, err
+
+	subnetID := d.Get("subnet_id").(int)
+	search := d.Get("custom_field_filter").(map[string]interface{})
+
+	// For description/hostname (no custom fields), use unfiltered fetch
+	if len(search) == 0 {
+		v, err := s.GetAddressesInSubnet(subnetID)
+		if err != nil {
+			return result, err
+		}
+		if len(v) == 0 {
+			return result, errors.New("No addresses were found in the supplied subnet")
+		}
+		for _, r := range v {
+			switch {
+			case d.Get("description").(string) != "" && r.Description == d.Get("description").(string):
+				result = append(result, r)
+			case d.Get("hostname").(string) != "" && r.Hostname == d.Get("hostname").(string):
+				result = append(result, r)
+			}
+		}
+		return result, nil
 	}
+
+	// Custom field filter path: use API-level filter on first custom field
+	var filterKey, filterExpr string
+	remaining := make(map[string]interface{})
+	for k, v := range search {
+		if filterKey == "" {
+			filterKey = k
+			filterExpr = v.(string)
+		} else {
+			remaining[k] = v
+		}
+	}
+
+	// Try API-level filter with the first custom field using regex match
+	v, err := s.GetAddressesInSubnetFiltered(subnetID, filterKey, "/"+filterExpr+"/", "regex")
+	if err != nil {
+		// Fall back to unfiltered fetch
+		v, err = s.GetAddressesInSubnet(subnetID)
+		if err != nil {
+			return result, err
+		}
+		remaining = search
+	}
+
 	if len(v) == 0 {
 		return result, errors.New("No addresses were found in the supplied subnet")
 	}
+
+	// Filter remaining custom fields client-side
 	for _, r := range v {
-		switch {
-		case d.Get("description").(string) != "" && r.Description == d.Get("description").(string):
-			result = append(result, r)
-		case d.Get("hostname").(string) != "" && r.Hostname == d.Get("hostname").(string):
-			result = append(result, r)
-		case len(d.Get("custom_field_filter").(map[string]interface{})) > 0:
-			fields, err := c.GetAddressCustomFields(r.ID)
+		// Use CustomFields from response when available (app_nest_custom_fields)
+		var fields map[string]interface{}
+		if r.CustomFields != nil && len(r.CustomFields) > 0 {
+			fields = r.CustomFields
+		} else {
+			fields, err = c.GetAddressCustomFields(r.ID)
 			if err != nil {
 				return result, err
 			}
-			search := d.Get("custom_field_filter").(map[string]interface{})
-			matched, err := customFieldFilter(fields, search)
+		}
+
+		if len(remaining) == 0 {
+			result = append(result, r)
+		} else {
+			matched, err := customFieldFilter(fields, remaining)
 			if err != nil {
 				return result, err
 			}

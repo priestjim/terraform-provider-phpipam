@@ -43,91 +43,91 @@ var resourceSubnetOptionalFields = linearSearchSlice{
 // source and the resource.
 func bareSubnetSchema() map[string]*schema.Schema {
 	return map[string]*schema.Schema{
-		"subnet_id": &schema.Schema{
+		"subnet_id": {
 			Type: schema.TypeInt,
 		},
-		"parent_subnet_id": &schema.Schema{
+		"parent_subnet_id": {
 			Type: schema.TypeInt,
 		},
-		"subnet_address": &schema.Schema{
+		"subnet_address": {
 			Type: schema.TypeString,
 		},
-		"subnet_mask": &schema.Schema{
+		"subnet_mask": {
 			Type: schema.TypeInt,
 		},
-		"description": &schema.Schema{
+		"description": {
 			Type: schema.TypeString,
 		},
-		"section_id": &schema.Schema{
+		"section_id": {
 			Type: schema.TypeInt,
 		},
-		"linked_subnet_id": &schema.Schema{
+		"linked_subnet_id": {
 			Type: schema.TypeInt,
 		},
-		"vlan_id": &schema.Schema{
+		"vlan_id": {
 			Type: schema.TypeInt,
 		},
-		"vrf_id": &schema.Schema{
+		"vrf_id": {
 			Type: schema.TypeInt,
 		},
-		"master_subnet_id": &schema.Schema{
+		"master_subnet_id": {
 			Type: schema.TypeInt,
 		},
-		"nameserver_id": &schema.Schema{
+		"nameserver_id": {
 			Type: schema.TypeInt,
 		},
-		"nameservers": &schema.Schema{
+		"nameservers": {
 			Type: schema.TypeMap,
 		},
-		"show_name": &schema.Schema{
+		"show_name": {
 			Type: schema.TypeBool,
 		},
-		"permissions": &schema.Schema{
+		"permissions": {
 			Type: schema.TypeString,
 		},
-		"create_ptr_records": &schema.Schema{
+		"create_ptr_records": {
 			Type: schema.TypeBool,
 		},
-		"display_hostnames": &schema.Schema{
+		"display_hostnames": {
 			Type: schema.TypeBool,
 		},
-		"allow_ip_requests": &schema.Schema{
+		"allow_ip_requests": {
 			Type: schema.TypeBool,
 		},
-		"scan_agent_id": &schema.Schema{
+		"scan_agent_id": {
 			Type: schema.TypeInt,
 		},
-		"include_in_ping": &schema.Schema{
+		"include_in_ping": {
 			Type: schema.TypeBool,
 		},
-		"host_discovery_enabled": &schema.Schema{
+		"host_discovery_enabled": {
 			Type: schema.TypeBool,
 		},
-		"resolve_dns": &schema.Schema{
+		"resolve_dns": {
 			Type: schema.TypeBool,
 		},
-		"is_folder": &schema.Schema{
+		"is_folder": {
 			Type: schema.TypeBool,
 		},
-		"is_full": &schema.Schema{
+		"is_full": {
 			Type: schema.TypeBool,
 		},
-		"utilization_threshold": &schema.Schema{
+		"utilization_threshold": {
 			Type: schema.TypeInt,
 		},
-		"location_id": &schema.Schema{
+		"location_id": {
 			Type: schema.TypeInt,
 		},
-		"edit_date": &schema.Schema{
+		"edit_date": {
 			Type: schema.TypeString,
 		},
-		"gateway": &schema.Schema{
+		"gateway": {
 			Type: schema.TypeMap,
 		},
-		"gateway_id": &schema.Schema{
+		"gateway_id": {
 			Type: schema.TypeString,
 		},
-		"custom_fields": &schema.Schema{
+		"custom_fields": {
 			Type: schema.TypeMap,
 		},
 	}
@@ -138,8 +138,8 @@ func bareSubnetSchema() map[string]*schema.Schema {
 // resourceSubnetRequiredFields, and ensures that all optional and
 // non-configurable fields are computed as well.
 func resourceFirstFreeSubnetSchema() map[string]*schema.Schema {
-	schema := bareSubnetSchema()
-	for k, v := range schema {
+	bareSchema := bareSubnetSchema()
+	for k, v := range bareSchema {
 		switch {
 		// Subnet id and Mask are currently ForceNew
 		case k == "parent_subnet_id" || k == "subnet_mask":
@@ -149,16 +149,11 @@ func resourceFirstFreeSubnetSchema() map[string]*schema.Schema {
 			v.Optional = true
 			v.Computed = true
 		case k == "custom_fields":
-<<<<<<< HEAD
-                        v.Optional = true
-                        v.Computed = true
-                        v.DiffSuppressFunc = func(k, old, new string, d *schema.ResourceData) bool {
-                            return old == new
-                        }
-=======
 			v.Optional = true
-			v.Computed = false
->>>>>>> fix_custom_fields_diff
+			v.Computed = true
+			v.DiffSuppressFunc = func(k, old, new string, d *schema.ResourceData) bool {
+				return old == new
+			}
 		case resourceSubnetOptionalFields.Has(k):
 			v.Optional = true
 			v.Computed = true
@@ -166,7 +161,7 @@ func resourceFirstFreeSubnetSchema() map[string]*schema.Schema {
 			v.Computed = true
 		}
 	}
-	return schema
+	return bareSchema
 }
 
 // resourceSubnetSchema returns the schema for the phpipam_subnet resource. It
@@ -396,43 +391,101 @@ func subnetSearchInSection(d *schema.ResourceData, meta interface{}) ([]subnets.
 	}
 }
 
-// subnetSearchInSectionClientFilter is the fallback that fetches all subnets
-// in a section and filters client-side. Used for custom_field_filter (which
-// requires per-resource API calls) and as a fallback if server-side filtering
-// is not available.
+// subnetSearchInSectionClientFilter is the fallback for custom_field_filter
+// and as a fallback if server-side filtering is not available.
+//
+// For custom_field_filter, this uses a tiered optimization strategy:
+//  1. If only one custom field is filtered, push it to the API via filter_by
+//     (phpIPAM supports custom field names in filter_by), then verify any
+//     remaining matches client-side using CustomFields from the response.
+//  2. For multiple custom fields, use the first field as an API filter to
+//     reduce the result set, then filter the rest client-side.
+//  3. Use CustomFields from the bulk response when available (requires
+//     app_nest_custom_fields enabled in phpIPAM API app), avoiding the N+1
+//     per-resource API calls entirely.
 func subnetSearchInSectionClientFilter(d *schema.ResourceData, meta interface{}) ([]subnets.Subnet, error) {
 	c := meta.(*ProviderPHPIPAMClient).subnetsController
 	s := meta.(*ProviderPHPIPAMClient).sectionsController
 	result := make([]subnets.Subnet, 0)
 
-	v, err := s.GetSubnetsInSection(d.Get("section_id").(int))
-	if err != nil {
-		return result, err
+	sectionID := d.Get("section_id").(int)
+	search := d.Get("custom_field_filter").(map[string]interface{})
+
+	// For description/description_match (no custom fields), use unfiltered fetch
+	if len(search) == 0 {
+		v, err := s.GetSubnetsInSection(sectionID)
+		if err != nil {
+			return result, err
+		}
+		if len(v) == 0 {
+			return result, errors.New("No subnets were found in the supplied section")
+		}
+		for _, r := range v {
+			switch {
+			case d.Get("description_match").(string) != "":
+				if matched, _ := regexp.MatchString(d.Get("description_match").(string), r.Description); matched {
+					result = append(result, r)
+				}
+			case d.Get("description").(string) != "" && r.Description == d.Get("description").(string):
+				result = append(result, r)
+			}
+		}
+		return result, nil
 	}
+
+	// Custom field filter path: use API-level filter on first custom field
+	// to reduce the result set, then filter remaining fields client-side.
+	var filterKey, filterExpr string
+	remaining := make(map[string]interface{})
+	for k, v := range search {
+		if filterKey == "" {
+			filterKey = k
+			filterExpr = v.(string)
+		} else {
+			remaining[k] = v
+		}
+	}
+
+	// Try API-level filter with the first custom field using regex match
+	v, err := s.GetSubnetsInSectionFiltered(sectionID, filterKey, "/"+filterExpr+"/", "regex")
+	if err != nil {
+		// Fall back to unfiltered fetch if the API doesn't support this field
+		v, err = s.GetSubnetsInSection(sectionID)
+		if err != nil {
+			return result, err
+		}
+		// Reset: need to check all fields client-side
+		remaining = search
+	}
+
 	if len(v) == 0 {
 		return result, errors.New("No subnets were found in the supplied section")
 	}
+
+	// Filter remaining custom fields client-side
 	for _, r := range v {
-		switch {
-		case d.Get("description_match").(string) != "":
-			if matched, _ := regexp.MatchString(d.Get("description_match").(string), r.Description); matched {
-				result = append(result, r)
+		if r.IsFolder {
+			continue
+		}
+
+		// If CustomFields is populated (app_nest_custom_fields enabled),
+		// use it directly — no extra API calls needed.
+		var fields map[string]interface{}
+		if r.CustomFields != nil && len(r.CustomFields) > 0 {
+			fields = r.CustomFields
+		} else {
+			// Fallback: fetch custom fields per resource (legacy N+1 path)
+			fields, err = c.GetSubnetCustomFields(r.ID)
+			if err != nil {
+				return result, err
 			}
-		case d.Get("description").(string) != "" && r.Description == d.Get("description").(string):
+		}
+
+		if len(remaining) == 0 {
+			// API filter already matched the only custom field
 			result = append(result, r)
-		case len(d.Get("custom_field_filter").(map[string]interface{})) > 0:
-			if r.IsFolder {
-				continue
-			}
-			fields, err := c.GetSubnetCustomFields(r.ID)
-			if err != nil {
-				return result, err
-			}
-			search := d.Get("custom_field_filter").(map[string]interface{})
-			if err != nil {
-				return result, err
-			}
-			matched, err := customFieldFilter(fields, search)
+		} else {
+			matched, err := customFieldFilter(fields, remaining)
 			if err != nil {
 				return result, err
 			}
