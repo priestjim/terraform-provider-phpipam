@@ -31,7 +31,7 @@ func TestAccDataSourcePHPIPAMSection(t *testing.T) {
 		},
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDataSourcePHPIPAMSectionConfig,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair("data.phpipam_section.section_by_name", "section_id", "data.phpipam_section.section_by_id", "section_id"),

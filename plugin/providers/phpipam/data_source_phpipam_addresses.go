@@ -10,20 +10,20 @@ func dataSourcePHPIPAMAddresses() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourcePHPIPAMAddressesRead,
 		Schema: map[string]*schema.Schema{
-			"subnet_id": &schema.Schema{
+			"subnet_id": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"hostname": &schema.Schema{
+			"hostname": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"custom_field_filter": customFieldFilterSchema([]string{"description", "hostname"}),
-			"address_ids": &schema.Schema{
+			"address_ids": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeInt},

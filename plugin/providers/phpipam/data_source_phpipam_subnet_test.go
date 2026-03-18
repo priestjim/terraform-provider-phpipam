@@ -89,7 +89,7 @@ func TestAccDataSourcePHPIPAMSubnet(t *testing.T) {
 		},
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDataSourcePHPIPAMSubnetConfig,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair("data.phpipam_subnet.subnet_by_cidr", "subnet_id", "data.phpipam_subnet.subnet_by_id", "subnet_id"),
@@ -112,7 +112,7 @@ func TestAccDataSourcePHPIPAMSubnet_CustomFields(t *testing.T) {
 		},
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDataSourcePHPIPAMSubnetCustomFieldConfig,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.phpipam_subnet.custom_search", "subnet_address", "10.10.3.0"),

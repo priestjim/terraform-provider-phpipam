@@ -112,7 +112,7 @@ func TestAccResourcePHPIPAMAddress(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckResourcePHPIPAMAddressDeleted,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccResourcePHPIPAMAddressConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckResourcePHPIPAMAddressCreated,
@@ -134,7 +134,7 @@ func TestAccResourcePHPIPAMOptionalAddress(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckResourcePHPIPAMAddressDeleted,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccResourcePHPIPAMOptionalAddressConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckResourcePHPIPAMAddressCreated,
@@ -155,7 +155,7 @@ func TestAccResourcePHPIPAMAddress_CustomFields(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckResourcePHPIPAMAddressDeleted,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccResourcePHPIPAMAddressCustomFieldConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckResourcePHPIPAMAddressCreated,
@@ -165,7 +165,7 @@ func TestAccResourcePHPIPAMAddress_CustomFields(t *testing.T) {
 					resource.TestCheckResourceAttr("phpipam_address.address", "custom_fields.custom_CustomTestAddresses", "terraform-test"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccResourcePHPIPAMAddressCustomFieldUpdateConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckResourcePHPIPAMAddressCreated,

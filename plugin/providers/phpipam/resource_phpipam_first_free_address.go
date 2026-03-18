@@ -32,58 +32,58 @@ func resourcePHPIPAMFirstFreeAddress() *schema.Resource {
 // source and the resource.
 func bareFirstFreeAddressSchema() map[string]*schema.Schema {
 	return map[string]*schema.Schema{
-		"address_id": &schema.Schema{
+		"address_id": {
 			Type: schema.TypeInt,
 		},
-		"subnet_id": &schema.Schema{
+		"subnet_id": {
 			Type: schema.TypeInt,
 		},
-		"ip_address": &schema.Schema{
+		"ip_address": {
 			Type: schema.TypeString,
 		},
-		"is_gateway": &schema.Schema{
+		"is_gateway": {
 			Type: schema.TypeBool,
 		},
-		"description": &schema.Schema{
+		"description": {
 			Type: schema.TypeString,
 		},
-		"hostname": &schema.Schema{
+		"hostname": {
 			Type: schema.TypeString,
 		},
-		"mac_address": &schema.Schema{
+		"mac_address": {
 			Type: schema.TypeString,
 		},
-		"owner": &schema.Schema{
+		"owner": {
 			Type: schema.TypeString,
 		},
-		"state_tag_id": &schema.Schema{
+		"state_tag_id": {
 			Type: schema.TypeInt,
 		},
-		"skip_ptr_record": &schema.Schema{
+		"skip_ptr_record": {
 			Type: schema.TypeBool,
 		},
-		"ptr_record_id": &schema.Schema{
+		"ptr_record_id": {
 			Type: schema.TypeInt,
 		},
-		"device_id": &schema.Schema{
+		"device_id": {
 			Type: schema.TypeInt,
 		},
-		"switch_port_label": &schema.Schema{
+		"switch_port_label": {
 			Type: schema.TypeString,
 		},
-		"note": &schema.Schema{
+		"note": {
 			Type: schema.TypeString,
 		},
-		"last_seen": &schema.Schema{
+		"last_seen": {
 			Type: schema.TypeString,
 		},
-		"exclude_ping": &schema.Schema{
+		"exclude_ping": {
 			Type: schema.TypeBool,
 		},
-		"edit_date": &schema.Schema{
+		"edit_date": {
 			Type: schema.TypeString,
 		},
-		"custom_fields": &schema.Schema{
+		"custom_fields": {
 			Type: schema.TypeMap,
 		},
 	}

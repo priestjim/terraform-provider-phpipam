@@ -81,10 +81,10 @@ func TestAccDataSourcePHPIPAMSubnets(t *testing.T) {
 		},
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDataSourcePHPIPAMSubnetsConfigStage1,
 			},
-			resource.TestStep{
+			{
 				Config: testAccDataSourcePHPIPAMSubnetsConfigStage2,
 				Check: resource.ComposeTestCheckFunc(
 					testCheckOutputPair("expected_subnet_ids", "actual_subnet_ids_description"),

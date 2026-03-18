@@ -28,7 +28,7 @@ func TestAccResourcePHPIPAML2Domain(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckResourcePHPIPAML2DomainDeleted,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccResourcePHPIPAML2DomainConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckResourcePHPIPAML2DomainCreated,

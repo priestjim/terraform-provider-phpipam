@@ -23,25 +23,25 @@ var resourceVLANOptionalFields = linearSearchSlice{
 // source and the resource.
 func bareVLANSchema() map[string]*schema.Schema {
 	return map[string]*schema.Schema{
-		"vlan_id": &schema.Schema{
+		"vlan_id": {
 			Type: schema.TypeInt,
 		},
-		"l2_domain_id": &schema.Schema{
+		"l2_domain_id": {
 			Type: schema.TypeInt,
 		},
-		"name": &schema.Schema{
+		"name": {
 			Type: schema.TypeString,
 		},
-		"number": &schema.Schema{
+		"number": {
 			Type: schema.TypeInt,
 		},
-		"description": &schema.Schema{
+		"description": {
 			Type: schema.TypeString,
 		},
-		"edit_date": &schema.Schema{
+		"edit_date": {
 			Type: schema.TypeString,
 		},
-		"custom_fields": &schema.Schema{
+		"custom_fields": {
 			Type: schema.TypeMap,
 		},
 	}

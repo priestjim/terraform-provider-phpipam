@@ -23,16 +23,16 @@ var resourceL2DomainOptionalFields = linearSearchSlice{
 // source and the resource.
 func bareL2DomainSchema() map[string]*schema.Schema {
 	return map[string]*schema.Schema{
-		"domain_id": &schema.Schema{
+		"domain_id": {
 			Type: schema.TypeInt,
 		},
-		"name": &schema.Schema{
+		"name": {
 			Type: schema.TypeString,
 		},
-		"description": &schema.Schema{
+		"description": {
 			Type: schema.TypeString,
 		},
-		"sections": &schema.Schema{
+		"sections": {
 			Type: schema.TypeString,
 		},
 	}

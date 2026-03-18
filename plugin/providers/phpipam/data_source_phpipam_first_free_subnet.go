@@ -10,15 +10,15 @@ func dataSourcePHPIPAMFirstFreeSubnet() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourcePHPIPAMFirstFreeSubnetRead,
 		Schema: map[string]*schema.Schema{
-			"subnet_id": &schema.Schema{
+			"subnet_id": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"subnet_mask": &schema.Schema{
+			"subnet_mask": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"ip_address": &schema.Schema{
+			"ip_address": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

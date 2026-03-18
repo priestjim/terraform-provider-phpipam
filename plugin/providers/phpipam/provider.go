@@ -8,25 +8,25 @@ import (
 func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
-			"app_id": &schema.Schema{
+			"app_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "",
 				Description: descriptions["app_id"],
 			},
-			"endpoint": &schema.Schema{
+			"endpoint": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "",
 				Description: descriptions["endpoint"],
 			},
-			"password": &schema.Schema{
+			"password": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "",
 				Description: descriptions["password"],
 			},
-			"username": &schema.Schema{
+			"username": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "",

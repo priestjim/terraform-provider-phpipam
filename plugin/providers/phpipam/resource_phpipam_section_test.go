@@ -25,7 +25,7 @@ func TestAccResourcePHPIPAMSection(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckResourcePHPIPAMSectionDeleted,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccResourcePHPIPAMSectionConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckResourcePHPIPAMSectionCreated,

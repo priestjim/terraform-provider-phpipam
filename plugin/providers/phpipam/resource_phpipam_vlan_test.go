@@ -66,7 +66,7 @@ func TestAccResourcePHPIPAMVLAN(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckResourcePHPIPAMVLANDeleted,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccResourcePHPIPAMVLANConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckResourcePHPIPAMVLANCreated,

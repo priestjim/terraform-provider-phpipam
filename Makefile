@@ -1,23 +1,24 @@
+.PHONY: test testacc build clean release release_bump release_build
+
 test:
-	go test -v $(shell go list ./... | grep -v /vendor/) 
+	go test -v $(shell go list ./... | grep -v /vendor/)
 
 testacc:
 	go clean -testcache; TF_ACC=1 go test -v ./plugin/providers/phpipam -run="TestAcc"
 
-build: deps
-	gox -osarch="linux/amd64 windows/amd64 darwin/amd64 darwin/arm64" \
-	-output="pkg/{{.OS}}_{{.Arch}}/terraform-provider-phpipam" .
+build:
+	GOOS=linux GOARCH=amd64 go build -ldflags "-X google.golang.org/protobuf/reflect/protoregistry.conflictPolicy=warn" -o terraform.d/plugins/registry.terraform.io/lord-kyron/phpipam/1.7.0/linux_amd64/terraform-provider-phpipam
+	GOOS=linux GOARCH=arm64 go build -ldflags "-X google.golang.org/protobuf/reflect/protoregistry.conflictPolicy=warn" -o terraform.d/plugins/registry.terraform.io/lord-kyron/phpipam/1.7.0/linux_arm64/terraform-provider-phpipam
+	GOOS=darwin GOARCH=amd64 go build -ldflags "-X google.golang.org/protobuf/reflect/protoregistry.conflictPolicy=warn" -o terraform.d/plugins/registry.terraform.io/lord-kyron/phpipam/1.7.0/darwin_amd64/terraform-provider-phpipam
+	GOOS=darwin GOARCH=arm64 go build -ldflags "-X google.golang.org/protobuf/reflect/protoregistry.conflictPolicy=warn" -o terraform.d/plugins/registry.terraform.io/lord-kyron/phpipam/1.7.0/darwin_arm64/terraform-provider-phpipam
 
 release: release_bump release_build
 
 release_bump:
 	scripts/release_bump.sh
 
-release_build:
-	scripts/release_build.sh
-
-deps:
-	go get -u github.com/mitchellh/gox
-
 clean:
-	rm -rf pkg/
+	rm -rf .terraform.d/plugins
+
+fmt:
+	gofmt -s -w -e .

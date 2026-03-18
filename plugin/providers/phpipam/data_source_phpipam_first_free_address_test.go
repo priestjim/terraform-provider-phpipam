@@ -72,7 +72,7 @@ func TestAccDataSourcePHPIPAMFirstFreeAddress(t *testing.T) {
 		},
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDataSourcePHPIPAMFirstFreeAddressConfig,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.phpipam_first_free_address.next", "ip_address", "10.10.1.1"),
@@ -90,7 +90,7 @@ func TestAccDataSourcePHPIPAMFirstFreeAddressNoFree(t *testing.T) {
 		},
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config:      testAccDataSourcePHPIPAMFirstFreeAddressNoFreeConfig,
 				ExpectError: regexp.MustCompile("No free addresses found"),
 			},

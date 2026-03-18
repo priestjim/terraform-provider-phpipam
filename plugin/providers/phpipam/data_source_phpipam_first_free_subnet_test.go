@@ -74,7 +74,7 @@ func TestAccDataSourcePHPIPAMFirstFreeSubnet(t *testing.T) {
 		},
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDataSourcePHPIPAMFirstFreeSubnetConfig,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.phpipam_first_free_subnet.next", "ip_address", "10.10.1.0/26"),
@@ -92,7 +92,7 @@ func TestAccDataSourcePHPIPAMFirstFreeSubnetNoFree(t *testing.T) {
 		},
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config:      testAccDataSourcePHPIPAMFirstFreeSubnetNoFreeConfig,
 				ExpectError: regexp.MustCompile("No subnets found"),
 			},

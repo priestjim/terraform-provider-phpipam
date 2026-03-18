@@ -10,17 +10,17 @@ func dataSourcePHPIPAMSubnets() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourcePHPIPAMSubnetsRead,
 		Schema: map[string]*schema.Schema{
-			"section_id": &schema.Schema{
+			"section_id": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"description_match":   subnetDescriptionMatchSchema([]string{"description", "custom_field_filter"}),
 			"custom_field_filter": customFieldFilterSchema([]string{"description", "description_match"}),
-			"subnet_ids": &schema.Schema{
+			"subnet_ids": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeInt},

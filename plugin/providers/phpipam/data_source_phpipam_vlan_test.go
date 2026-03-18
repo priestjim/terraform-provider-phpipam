@@ -40,7 +40,7 @@ func TestAccDataSourcePHPIPAMVLAN(t *testing.T) {
 		},
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDataSourcePHPIPAMVLANConfig,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair("data.phpipam_vlan.vlan_by_number", "vlan_id", "data.phpipam_vlan.vlan_by_id", "vlan_id"),

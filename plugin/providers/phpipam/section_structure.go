@@ -31,43 +31,43 @@ var resourceSectionOptionalFields = linearSearchSlice{
 // source and the resource.
 func bareSectionSchema() map[string]*schema.Schema {
 	return map[string]*schema.Schema{
-		"section_id": &schema.Schema{
+		"section_id": {
 			Type: schema.TypeInt,
 		},
-		"name": &schema.Schema{
+		"name": {
 			Type: schema.TypeString,
 		},
-		"description": &schema.Schema{
+		"description": {
 			Type: schema.TypeString,
 		},
-		"master_section_id": &schema.Schema{
+		"master_section_id": {
 			Type: schema.TypeInt,
 		},
-		"permissions": &schema.Schema{
+		"permissions": {
 			Type: schema.TypeString,
 		},
-		"strict_mode": &schema.Schema{
+		"strict_mode": {
 			Type: schema.TypeBool,
 		},
-		"subnet_ordering": &schema.Schema{
+		"subnet_ordering": {
 			Type: schema.TypeString,
 		},
-		"display_order": &schema.Schema{
+		"display_order": {
 			Type: schema.TypeInt,
 		},
-		"edit_date": &schema.Schema{
+		"edit_date": {
 			Type: schema.TypeString,
 		},
-		"show_vlan_in_subnet_listing": &schema.Schema{
+		"show_vlan_in_subnet_listing": {
 			Type: schema.TypeBool,
 		},
-		"show_vrf_in_subnet_listing": &schema.Schema{
+		"show_vrf_in_subnet_listing": {
 			Type: schema.TypeBool,
 		},
-		"show_supernet_only": &schema.Schema{
+		"show_supernet_only": {
 			Type: schema.TypeBool,
 		},
-		"dns_resolver_id": &schema.Schema{
+		"dns_resolver_id": {
 			Type: schema.TypeInt,
 		},
 	}

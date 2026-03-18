@@ -90,10 +90,10 @@ func TestAccDataSourcePHPIPAMAddresses(t *testing.T) {
 		},
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDataSourcePHPIPAMAddressesConfigStage1,
 			},
-			resource.TestStep{
+			{
 				Config: testAccDataSourcePHPIPAMAddressesConfigStage2,
 				Check: resource.ComposeTestCheckFunc(
 					testCheckOutputPair("expected_address_ids", "actual_address_ids_description"),

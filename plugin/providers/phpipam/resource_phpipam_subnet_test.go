@@ -74,7 +74,7 @@ func TestAccResourcePHPIPAMSubnet(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckResourcePHPIPAMSubnetDeleted,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccResourcePHPIPAMSubnetConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckResourcePHPIPAMSubnetCreated,
@@ -96,7 +96,7 @@ func TestAccResourcePHPIPAMSubnet_CustomFields(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckResourcePHPIPAMSubnetDeleted,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccResourcePHPIPAMSubnetCustomFieldConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckResourcePHPIPAMSubnetCreated,
@@ -106,7 +106,7 @@ func TestAccResourcePHPIPAMSubnet_CustomFields(t *testing.T) {
 					resource.TestCheckResourceAttr("phpipam_subnet.subnet", "custom_fields.custom_CustomTestSubnets", "terraform-test"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccResourcePHPIPAMSubnetCustomFieldUpdateConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckResourcePHPIPAMSubnetCreated,

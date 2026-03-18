@@ -120,7 +120,7 @@ func TestAccDataSourcePHPIPAMAddress(t *testing.T) {
 		},
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDataSourcePHPIPAMAddressConfig,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("phpipam_section.test", "name", "tf-test"),
@@ -131,7 +131,7 @@ func TestAccDataSourcePHPIPAMAddress(t *testing.T) {
 					resource.TestCheckResourceAttr("data.phpipam_address.address_by_description", "ip_address", "10.10.3.245"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccDataSourcePHPIPAMAddressCustomFieldConfig,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.phpipam_address.custom_search", "ip_address", "10.10.3.245"),

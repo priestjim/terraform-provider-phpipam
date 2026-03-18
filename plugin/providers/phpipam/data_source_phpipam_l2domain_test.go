@@ -31,7 +31,7 @@ func TestAccDataSourcePHPIPAML2Domain(t *testing.T) {
 		},
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDataSourcePHPIPAML2DomainConfig,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair("data.phpipam_l2domain.l2domain_by_name", "domain_id", "data.phpipam_l2domain.l2domain_by_id", "domain_id"),
