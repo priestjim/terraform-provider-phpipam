@@ -1,3 +1,11 @@
+## 1.7.0
+ * Applied fix for [issue #100](https://github.com/lord-kyron/terraform-provider-phpipam/issues/100) - read-only fields are no longer sent back on resource updates, which broke `terraform apply` after an import with `Invalid request key gateway`
+ * Applied fix for [issue #95](https://github.com/lord-kyron/terraform-provider-phpipam/issues/95) via [pull request #97](https://github.com/lord-kyron/terraform-provider-phpipam/pull/97) - permanent diff on `custom_fields` in the `phpipam_first_free_subnet` resource
+ * Documented app code token authentication, answering [issue #92](https://github.com/lord-kyron/terraform-provider-phpipam/issues/92) - leave `username` empty and pass the token as `password`
+ * Documented the read-only `gateway`, `gateway_id` and `nameservers` attributes of the subnet resource
+ * Replaced the deprecated `archives.format` option in the GoReleaser config with `formats`
+ * Updated release workflow actions: actions/checkout v4 to v6, actions/setup-go v5 to v6, crazy-max/ghaction-import-gpg v6 to v7, goreleaser/goreleaser-action v6 to v7
+ * Build with Go 1.26
 ## 1.5.2
  * Fix error for vlans where custom field not defined 
 ## 1.5.1

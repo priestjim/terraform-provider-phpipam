@@ -85,3 +85,9 @@ The following attributes are exported:
 - `permissions` - A JSON representation of the permissions associated with this
    subnet.
 - `edit_date` - The date this resource was last updated.
+- `gateway` - The gateway configured for this subnet, as a map containing the
+   address ID and IP. Read-only - the gateway is set by flagging an address as
+   a gateway in PHPIPAM, not through this resource.
+- `gateway_id` - The ID of the address serving as this subnet's gateway.
+- `nameservers` - The nameserver set assigned to this subnet, as a map.
+   Read-only - assign a nameserver set with `nameserver_id`.

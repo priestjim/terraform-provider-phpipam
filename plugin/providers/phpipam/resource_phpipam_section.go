@@ -38,6 +38,11 @@ func resourcePHPIPAMSectionUpdate(d *schema.ResourceData, meta interface{}) erro
 	c := meta.(*ProviderPHPIPAMClient).sectionsController
 	in := expandSection(d)
 
+	// Remove the server-managed edit date from the request. It is populated in
+	// state by the read, and sending it back on an update can fail with
+	// "Invalid request key". It is computed-only in the schema, so it can never
+	// have been supplied by the practitioner.
+	in.EditDate = ""
 	if err := c.UpdateSection(in); err != nil {
 		return err
 	}

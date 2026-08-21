@@ -97,6 +97,16 @@ func resourcePHPIPAMSubnetUpdate(ctx context.Context, d *schema.ResourceData, me
 	// SDK, so support may be added at a later time.
 	in.SubnetAddress = ""
 	in.Mask = 0
+	// Remove the read-only fields from the request. These are synthesized by the
+	// API in the GET response rather than being properties of the subnet itself,
+	// and sending them back on an update fails with "Invalid request key". They
+	// are populated in state by the read, which makes this show up after a
+	// terraform import. All of these are computed-only in the schema, so they can
+	// never have been supplied by the practitioner.
+	in.Gateway = nil
+	in.Nameservers = nil
+	in.GatewayID = ""
+	in.EditDate = ""
 	if _, err := c.UpdateSubnet(in); err != nil {
 		return diag.FromErr(err)
 	}

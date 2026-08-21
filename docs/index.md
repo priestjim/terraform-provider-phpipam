@@ -105,9 +105,35 @@ The options for the plugin are as follows:
   `PHPIPAM_ENDPOINT_ADDR` environment variable.
 - `password` - The password to access the PHPIPAM API with. Can also be
   supplied via `PHPIPAM_PASSWORD` to prevent plain text password storage in
-  config.
+  config. When authenticating with an app code token instead of a user
+  account, supply the token here and leave `username` empty - see
+  [Authenticating with an app code token](#authenticating-with-an-app-code-token).
 - `username` - The user name to access the PHPIPAM API with. Can also be
-  supplied via the `PHPIPAM_USER_NAME` variable.
+  supplied via the `PHPIPAM_USER_NAME` variable. Leave this empty to
+  authenticate with an app code token rather than a user account.
+
+### Authenticating with an app code token
+
+In addition to user name and password, the provider can authenticate with a
+PHPIPAM app code token. To do so, leave `username` empty and supply the token
+as the `password`:
+
+```hcl
+provider "phpipam" {
+  app_id   = "test"
+  endpoint = "https://phpipam.example.com/api"
+  username = ""
+  password = "PHPIPAM_APP_CODE_TOKEN"
+}
+```
+
+When `username` is empty, the provider skips the login request and uses the
+value of `password` directly as the API token.
+
+This requires the API application in PHPIPAM to be configured with a security
+setting of **SSL with App code token**. Note that the token is sent in the
+`phpipam-token` request header - passing it as a query parameter in the
+`endpoint` URL is not supported.
 - `insecure` - Set to true to not validate the HTTPS certificate chain.
    Optional parameter, can be used only with HTTPS connections
 - `nest_custom_fields` - Set to true if the API application has this feature

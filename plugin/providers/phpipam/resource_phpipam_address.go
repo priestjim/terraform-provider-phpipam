@@ -89,6 +89,12 @@ func resourcePHPIPAMAddressUpdate(d *schema.ResourceData, meta interface{}) erro
 	// IPAddress and SubnetID need to be removed for update requests.
 	in.IPAddress = ""
 	in.SubnetID = 0
+	// The server-managed timestamps need to be removed as well. They are
+	// populated in state by the read, and sending them back on an update can
+	// fail with "Invalid request key". Both are computed-only in the schema, so
+	// they can never have been supplied by the practitioner.
+	in.LastSeen = ""
+	in.EditDate = ""
 	if _, err := c.UpdateAddress(in); err != nil {
 		return err
 	}
