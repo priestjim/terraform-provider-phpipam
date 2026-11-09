@@ -366,7 +366,7 @@ func subnetSearchInSection(d *schema.ResourceData, meta interface{}) ([]subnets.
 	switch {
 	case descMatch != "" && len(customFilter) == 0:
 		// Regex match: use filter_match=regex with PCRE-delimited pattern
-		v, err := s.GetSubnetsInSectionFiltered(sectionID, "description", "/"+descMatch+"/", "regex")
+		v, err := getSubnetsInSectionFiltered(s, sectionID, "description", "/"+descMatch+"/", "regex")
 		if err != nil {
 			// Fall back to client-side filtering if the API doesn't support it
 			return subnetSearchInSectionClientFilter(d, meta)
@@ -378,7 +378,7 @@ func subnetSearchInSection(d *schema.ResourceData, meta interface{}) ([]subnets.
 
 	case desc != "" && len(customFilter) == 0:
 		// Exact match: use filter_match=full
-		v, err := s.GetSubnetsInSectionFiltered(sectionID, "description", desc, "full")
+		v, err := getSubnetsInSectionFiltered(s, sectionID, "description", desc, "full")
 		if err != nil {
 			return subnetSearchInSectionClientFilter(d, meta)
 		}
@@ -449,7 +449,7 @@ func subnetSearchInSectionClientFilter(d *schema.ResourceData, meta interface{})
 	}
 
 	// Try API-level filter with the first custom field using regex match
-	v, err := s.GetSubnetsInSectionFiltered(sectionID, filterKey, "/"+filterExpr+"/", "regex")
+	v, err := getSubnetsInSectionFiltered(s, sectionID, filterKey, "/"+filterExpr+"/", "regex")
 	if err != nil {
 		// Fall back to unfiltered fetch if the API doesn't support this field
 		v, err = s.GetSubnetsInSection(sectionID)

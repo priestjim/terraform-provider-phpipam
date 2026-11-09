@@ -237,7 +237,7 @@ func addressSearchInSubnet(d *schema.ResourceData, meta interface{}) ([]addresse
 	// custom_field_filter is set. This pushes filtering to SQL.
 	switch {
 	case desc != "" && len(customFilter) == 0:
-		v, err := s.GetAddressesInSubnetFiltered(subnetID, "description", desc, "full")
+		v, err := getAddressesInSubnetFiltered(s, subnetID, "description", desc, "full")
 		if err != nil {
 			return addressSearchInSubnetClientFilter(d, meta)
 		}
@@ -247,7 +247,7 @@ func addressSearchInSubnet(d *schema.ResourceData, meta interface{}) ([]addresse
 		return v, nil
 
 	case hostname != "" && len(customFilter) == 0:
-		v, err := s.GetAddressesInSubnetFiltered(subnetID, "hostname", hostname, "full")
+		v, err := getAddressesInSubnetFiltered(s, subnetID, "hostname", hostname, "full")
 		if err != nil {
 			return addressSearchInSubnetClientFilter(d, meta)
 		}
@@ -308,7 +308,7 @@ func addressSearchInSubnetClientFilter(d *schema.ResourceData, meta interface{})
 	}
 
 	// Try API-level filter with the first custom field using regex match
-	v, err := s.GetAddressesInSubnetFiltered(subnetID, filterKey, "/"+filterExpr+"/", "regex")
+	v, err := getAddressesInSubnetFiltered(s, subnetID, filterKey, "/"+filterExpr+"/", "regex")
 	if err != nil {
 		// Fall back to unfiltered fetch
 		v, err = s.GetAddressesInSubnet(subnetID)
