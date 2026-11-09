@@ -9,10 +9,10 @@
 package appengine // import "google.golang.org/appengine"
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/golang/protobuf/proto"
-	"golang.org/x/net/context"
 
 	"google.golang.org/appengine/internal"
 )
@@ -53,6 +53,9 @@ import (
 func Main() {
 	internal.Main()
 }
+
+// Middleware wraps an http handler so that it can make GAE API calls
+var Middleware func(http.Handler) http.Handler = internal.Middleware
 
 // IsDevAppServer reports whether the App Engine app is running in the
 // development App Server.

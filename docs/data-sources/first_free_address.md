@@ -13,9 +13,15 @@ resource.
 
 ## Argument Reference
 
-The data source takes the following parameter:
+The data source takes one of the following parameters (exactly one must be set):
 
-- `subnet_id` (Required) - The ID of the subnet that the address resides in.
+- `subnet_id` (Optional) - The ID of the subnet that the address resides in.
+- `subnet_ids` (Optional) - An ordered list of subnet IDs. The data source tries
+  each subnet in turn and returns the first free address found in the first
+  subnet that still has one available. This is useful when you have several
+  small, non-contiguous address blocks and don't mind which one is used. The
+  `subnet_id` attribute is populated with the ID of the subnet that was
+  actually used.
 
 **Example:**
 
@@ -67,4 +73,15 @@ resource "vsphere_virtual_machine" "web" {
     network_interface,
   ]
 }
+```
+
+**Example: search across several subnets:**
+
+```hcl
+data "phpipam_first_free_address" "next_address" {
+  subnet_ids = [10, 11, 12]
+}
+
+// data.phpipam_first_free_address.next_address.subnet_id contains the ID of
+// the subnet the address was actually allocated from.
 ```

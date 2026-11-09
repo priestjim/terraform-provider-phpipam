@@ -1,13 +1,14 @@
-# This GitHub action can publish assets for release when a tag is created.
-# Currently its setup to run on any tag that matches the pattern "v*" (ie. v0.1.0).
+# Builds, signs and publishes a release with GoReleaser whenever a tag matching
+# "v*" (e.g. v1.7.1) is pushed.
 #
-# This uses an action (paultyng/ghaction-import-gpg) that assumes you set your
-# private key in the `GPG_PRIVATE_KEY` secret and passphrase in the `PASSPHRASE`
-# secret. If you would rather own your own GPG handling, please fork this action
-# or use an alternative one for key handling.
+# Signing uses crazy-max/ghaction-import-gpg, which reads the private key from
+# the `GPG_PRIVATE_KEY` secret and its passphrase from the `PASSPHRASE` secret.
+# The key's fingerprint is handed to GoReleaser as GPG_FINGERPRINT; the signing
+# step in .goreleaser.yml passes `--batch` so gpg runs non-interactively.
 #
-# You will need to pass the `--batch` flag to `gpg` in your signing step
-# in `goreleaser` to indicate this is being used in a non-interactive mode.
+# The release notes are the tag's section of CHANGELOG.md, extracted by
+# scripts/release_notes.sh. The release fails if that section is missing, so
+# add the CHANGELOG.md entry before tagging.
 #
 name: release
 on:
@@ -37,12 +38,15 @@ jobs:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
       -
+        name: Extract release notes from CHANGELOG.md
+        run: scripts/release_notes.sh "${GITHUB_REF_NAME}" > "${RUNNER_TEMP}/release-notes.md"
+      -
         name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v7
         with:
           distribution: goreleaser
           version: '~> v2'
-          args: release --clean
+          args: release --clean --release-notes=${{ runner.temp }}/release-notes.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}

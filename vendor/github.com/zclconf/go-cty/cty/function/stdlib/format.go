@@ -1,16 +1,16 @@
 package stdlib
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"math/big"
 	"strings"
 
-	"github.com/apparentlymart/go-textseg/v13/textseg"
-
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/convert"
 	"github.com/zclconf/go-cty/cty/function"
+	"github.com/zclconf/go-cty/cty/internal/graphemes"
 	"github.com/zclconf/go-cty/cty/json"
 )
 
@@ -26,10 +26,11 @@ var FormatFunc = function.New(&function.Spec{
 		},
 	},
 	VarParam: &function.Parameter{
-		Name:         "args",
-		Type:         cty.DynamicPseudoType,
-		AllowNull:    true,
-		AllowUnknown: true,
+		Name:             "args",
+		Type:             cty.DynamicPseudoType,
+		AllowNull:        true,
+		AllowUnknown:     true,
+		AllowDynamicType: true,
 	},
 	Type:         function.StaticReturnType(cty.String),
 	RefineResult: refineNonNull,
@@ -64,10 +65,11 @@ var FormatListFunc = function.New(&function.Spec{
 		},
 	},
 	VarParam: &function.Parameter{
-		Name:         "args",
-		Type:         cty.DynamicPseudoType,
-		AllowNull:    true,
-		AllowUnknown: true,
+		Name:             "args",
+		Type:             cty.DynamicPseudoType,
+		AllowNull:        true,
+		AllowUnknown:     true,
+		AllowDynamicType: true,
 	},
 	Type:         function.StaticReturnType(cty.List(cty.String)),
 	RefineResult: refineNonNull,
@@ -464,7 +466,7 @@ func formatAppendString(verb *formatVerb, buf *bytes.Buffer, arg cty.Value) erro
 				// ran out of characters before we hit our max width
 				break
 			}
-			d, _, _ := textseg.ScanGraphemeClusters(strB[pos:], true)
+			d, _, _ := graphemes.ScanGraphemeClusters(strB[pos:], true)
 			pos += d
 		}
 		str = str[:pos]
@@ -495,7 +497,7 @@ func formatPadWidth(verb *formatVerb, fmted string) string {
 	}
 
 	// Safe to ignore errors because ScanGraphemeClusters cannot produce errors
-	givenLen, _ := textseg.TokenCount([]byte(fmted), textseg.ScanGraphemeClusters)
+	givenLen, _ := tokenCount([]byte(fmted), graphemes.ScanGraphemeClusters)
 	wantLen := verb.Width
 	if givenLen >= wantLen {
 		return fmted
@@ -529,4 +531,16 @@ func formatStripIndexSegment(rawVerb string) string {
 	}
 
 	return rawVerb[:start] + rawVerb[end+1:]
+}
+
+// tokenCount is a utility that uses a bufio.SplitFunc to count the number of
+// recognized tokens in the given buffer.
+func tokenCount(buf []byte, splitFunc bufio.SplitFunc) (int, error) {
+	scanner := bufio.NewScanner(bytes.NewReader(buf))
+	scanner.Split(splitFunc)
+	var ret int
+	for scanner.Scan() {
+		ret++
+	}
+	return ret, scanner.Err()
 }

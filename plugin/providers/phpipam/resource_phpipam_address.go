@@ -1,6 +1,7 @@
 package phpipam
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strconv"
@@ -17,14 +18,41 @@ import (
 func resourcePHPIPAMAddress() *schema.Resource {
 	return &schema.Resource{
 		Create: resourcePHPIPAMAddressCreate,
-		Read:   dataSourcePHPIPAMAddressRead,
+		Read:   resourcePHPIPAMAddressRead,
 		Update: resourcePHPIPAMAddressUpdate,
 		Delete: resourcePHPIPAMAddressDelete,
 		Schema: resourceAddressSchema(),
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourcePHPIPAMAddressImport,
 		},
 	}
+}
+
+// resourcePHPIPAMAddressImport sets remove_dns_on_delete to its default, as it
+// is not part of the API resource and would otherwise be missing after import.
+func resourcePHPIPAMAddressImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	if err := d.Set("remove_dns_on_delete", true); err != nil {
+		return nil, err
+	}
+	return []*schema.ResourceData{d}, nil
+}
+
+// resourcePHPIPAMAddressRead restores address_id from Terraform's resource ID
+// for states created by provider versions that did not persist address_id.
+// Reading by ID avoids the IP-and-subnet endpoint, which no longer works with
+// phpIPAM 1.8.3.
+func resourcePHPIPAMAddressRead(d *schema.ResourceData, meta interface{}) error {
+	if d.Get("address_id").(int) == 0 && d.Id() != "" {
+		addressID, err := strconv.Atoi(d.Id())
+		if err != nil {
+			return fmt.Errorf("invalid address resource ID %q: %w", d.Id(), err)
+		}
+		if err := d.Set("address_id", addressID); err != nil {
+			return err
+		}
+	}
+
+	return dataSourcePHPIPAMAddressRead(d, meta)
 }
 
 func resourcePHPIPAMAddressCreate(d *schema.ResourceData, meta interface{}) error {
@@ -60,21 +88,30 @@ func resourcePHPIPAMAddressCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	// If we have custom fields, set them now. We need to get the IP address's ID
-	// beforehand.
+	// phpIPAM's create endpoint does not return the new address ID. Resolve it
+	// before the first read so that the resource is read by ID, rather than via
+	// the IP-and-subnet endpoint, whose behavior changed in phpIPAM 1.8.3.
+	addrs, err := c.GetAddressesByIP(in.IPAddress)
+	if err != nil {
+		return fmt.Errorf("could not read IP address after creating: %w", err)
+	}
+
+	var addressID int
+	for _, addr := range addrs {
+		if addr.SubnetID == in.SubnetID {
+			addressID = addr.ID
+			break
+		}
+	}
+	if addressID == 0 {
+		return errors.New("created IP address was not found in the requested subnet")
+	}
+
+	d.Set("address_id", addressID)
+	d.SetId(strconv.Itoa(addressID))
+
 	if customFields, ok := d.GetOk("custom_fields"); ok {
-		addrs, err := c.GetAddressesByIP(in.IPAddress)
-		if err != nil {
-			return fmt.Errorf("Could not read IP address after creating: %s", err)
-		}
-
-		if len(addrs) != 1 {
-			return errors.New("IP address either missing or multiple results returned by reading IP after creation")
-		}
-
-		d.SetId(strconv.Itoa(addrs[0].ID))
-
-		if _, err := c.UpdateAddressCustomFields(addrs[0].ID, customFields.(map[string]interface{})); err != nil {
+		if _, err := c.UpdateAddressCustomFields(addressID, customFields.(map[string]interface{})); err != nil {
 			return err
 		}
 	}

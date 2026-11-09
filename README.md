@@ -1,12 +1,29 @@
 # Terraform PHPIPAM provider
 
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/lord-kyron/terraform-provider-phpipam?color=gr&label=version&style=flat-square&logo=terraform) ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/lord-kyron/terraform-provider-phpipam?style=flat-square&logo=go) ![GitHub](https://img.shields.io/github/license/lord-kyron/terraform-provider-phpipam?color=orange&logo=apache&style=flat-square) ![GitHub last commit](https://img.shields.io/github/last-commit/lord-kyron/terraform-provider-phpipam?style=flat-square&logo=github) ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/lord-kyron/terraform-provider-phpipam/go.yml?style=flat-square&logo=github) ![GitHub Release Date](https://img.shields.io/github/release-date/lord-kyron/terraform-provider-phpipam?style=flat-square&logo=github) ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/lord-kyron/terraform-provider-phpipam?color=blueviolet&style=flat-square&logo=github) ![GitHub release (latest by date)](https://img.shields.io/github/downloads/lord-kyron/terraform-provider-phpipam/latest/total?style=flat-square&color=informational&logo=github)
+[![Terraform Registry](https://img.shields.io/github/v/release/lord-kyron/terraform-provider-phpipam?label=version&color=brightgreen&style=flat-square&logo=terraform)](https://registry.terraform.io/providers/lord-kyron/phpipam/latest)
+[![Terraform Registry downloads](https://img.shields.io/terraform/provider/dt/1058?label=downloads&color=informational&style=flat-square&logo=terraform)](https://registry.terraform.io/providers/lord-kyron/phpipam/latest)
+[![Terraform Registry monthly downloads](https://img.shields.io/terraform/provider/dm/1058?label=downloads&color=informational&style=flat-square&logo=terraform)](https://registry.terraform.io/providers/lord-kyron/phpipam/latest)
+[![Terraform Registry latest version downloads](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fregistry.terraform.io%2Fv2%2Fproviders%2F1058%2Fprovider-versions%2Flatest&query=%24.data.attributes.downloads&label=latest%20version%20downloads&color=informational&style=flat-square&logo=terraform)](https://registry.terraform.io/providers/lord-kyron/phpipam/latest)
+[![Tests](https://img.shields.io/github/actions/workflow/status/lord-kyron/terraform-provider-phpipam/test.yml?branch=master&label=tests&style=flat-square&logo=github)](https://github.com/lord-kyron/terraform-provider-phpipam/actions/workflows/test.yml)
+[![Release workflow](https://img.shields.io/github/actions/workflow/status/lord-kyron/terraform-provider-phpipam/go.yml?label=release&style=flat-square&logo=github)](https://github.com/lord-kyron/terraform-provider-phpipam/actions/workflows/go.yml)
+[![GitHub Release Date](https://img.shields.io/github/release-date/lord-kyron/terraform-provider-phpipam?style=flat-square&logo=github)](https://github.com/lord-kyron/terraform-provider-phpipam/releases/latest)
+[![Go version](https://img.shields.io/github/go-mod/go-version/lord-kyron/terraform-provider-phpipam?style=flat-square&logo=go)](./go.mod)
+[![License](https://img.shields.io/github/license/lord-kyron/terraform-provider-phpipam?color=orange&logo=apache&style=flat-square)](./LICENSE.md)
+[![GitHub last commit](https://img.shields.io/github/last-commit/lord-kyron/terraform-provider-phpipam?style=flat-square&logo=github)](https://github.com/lord-kyron/terraform-provider-phpipam/commits/master)
+[![Sponsor](https://img.shields.io/badge/sponsor-%E2%9D%A4-EA4AAA?style=flat-square&logo=githubsponsors)](https://github.com/sponsors/lord-kyron)
 
 This repository holds a external plugin for a [Terraform][1] provider to manage
 resources within [PHPIPAM][2], an open source IP address management system.
 
 [1]: https://www.terraform.io/
 [2]: https://phpipam.net/
+
+## Supporting this project
+
+If this provider saves you or your company time, please consider
+[sponsoring its maintenance on GitHub](https://github.com/sponsors/lord-kyron).
+Sponsorships help keep the provider up to date with new phpIPAM and Terraform
+releases.
 
 ## About PHPIPAM
 

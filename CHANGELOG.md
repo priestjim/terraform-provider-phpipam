@@ -1,3 +1,17 @@
+## 1.7.3
+ * Fixed `phpipam_first_free_address` forcing a replacement for imported resources and states created before 1.7.1 - [pull request #104](https://github.com/lord-kyron/terraform-provider-phpipam/pull/104)
+ * Fixed `terraform import` of `phpipam_l2domain`, which failed with `domain_id or name not defined`
+ * Fixed `remove_dns_on_delete` missing after importing a `phpipam_address`, which caused a spurious update on the next plan
+## 1.7.2
+ * Added a `search` argument to the `phpipam_subnets` data source for free-text subnet search across all sections, using the phpIPAM search controller (requires phpIPAM 1.6 or higher). `section_id` is now optional when `search` is set; when both are given, `section_id` limits the results to that section, and `description`, `description_match` and `custom_field_filter` further narrow them down
+ * Fixed the example in the `phpipam_subnets` data source docs, which used `subnet_id` instead of `section_id` and block syntax for `custom_field_filter`
+## 1.7.1
+ * Added support for subnet_ids to phpipam_first_free_address - [issue #101](https://github.com/lord-kyron/terraform-provider-phpipam/pull/101)
+ * Fixed phpipam_address state refresh with phpIPAM 1.8.3 - [issue #103](https://github.com/lord-kyron/terraform-provider-phpipam/pull/103)
+ * Bumped the minimum Go version to 1.26
+ * Updated dependencies: `terraform-plugin-sdk/v2` 2.26.1 -> 2.40.1, `phpipam-sdk-go` 0.1.9 -> 0.1.10, `go-cty` -> 1.5.0, plus all transitive dependencies (gRPC, protobuf, `golang.org/x/*`, etc.)
+ * Fixed log calls that used non-constant format strings, which `go vet` rejects under Go 1.26
+ * Fixed the broken code block in the `phpipam_first_free_address` data source docs
 ## 1.7.0
  * Applied fix for [issue #100](https://github.com/lord-kyron/terraform-provider-phpipam/issues/100) - read-only fields are no longer sent back on resource updates, which broke `terraform apply` after an import with `Invalid request key gateway`
  * Applied fix for [issue #95](https://github.com/lord-kyron/terraform-provider-phpipam/issues/95) via [pull request #97](https://github.com/lord-kyron/terraform-provider-phpipam/pull/97) - permanent diff on `custom_fields` in the `phpipam_first_free_subnet` resource
